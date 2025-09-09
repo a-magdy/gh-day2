@@ -1,0 +1,73 @@
+name: Summary Workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✍️ Write a fun summary
+        run: |
+          echo "# 🎈 Workflow Party Summary 🎈" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Hey there, :wave:!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Here's what just happened:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 📝 **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 👤 **Actor:** \`${{ github.actor }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 🎬 **Event:** \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✨ Keep up the awesome work! ✨" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "<img src='https://media.giphy.com/media/26ufnwz3wDUli7GU0/giphy.gif' width='200'/>" >> $GITHUB_STEP_SUMMARY
+
+  comment-on-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        with:
+          script: |
+            const title = process.env.TITLE;
+            if (title.startsWith('octocat')) {
+              console.log("PR title starts with 'octocat'");
+            } else {
+              console.error("PR title did not start with 'octocat'");
+            }
+
+      - name: 💬 Comment on PR
+        uses: actions/github-script@v8
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "👋 Thanks for the PR! This comment was added by a GitHub Actions workflow using github-script.! 👋🤖"
+            })
+
+      - name: ✨ Add to summary with github-script
+        uses: actions/github-script@v8
+        with:
+          script: |
+            core.summary
+              .addHeading('✨ github-script Summary Section')
+              .addRaw('This section was added using <code>actions/github-script</code>!<br>')
+              .addBreak()
+              .addList([
+                `🔢 **Run Number:** \`${process.env.GITHUB_RUN_NUMBER}\``,
+                `🔗 **Workflow:** \`${process.env.GITHUB_WORKFLOW}\``
+              ])
+              .addBreak()
+              .addRaw('Keep having fun with GitHub Actions! 🎉')
+              .write()
