@@ -1,4 +1,4 @@
-name: First Workflow
+name: Use a hosted action
 
 on: workflow_dispatch
 
