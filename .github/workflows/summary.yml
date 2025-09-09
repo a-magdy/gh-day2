@@ -55,3 +55,19 @@ jobs:
               issue_number: context.issue.number,
               body: "👋 Thanks for the PR! This comment was added by a GitHub Actions workflow using github-script.! 👋🤖"
             })
+
+      - name: ✨ Add to summary with github-script
+        uses: actions/github-script@v8
+        with:
+          script: |
+            core.summary
+              .addHeading('✨ github-script Summary Section')
+              .addRaw('This section was added using <code>actions/github-script</code>!<br>')
+              .addBreak()
+              .addList([
+                `🔢 **Run Number:** \`${process.env.GITHUB_RUN_NUMBER}\``,
+                `🔗 **Workflow:** \`${process.env.GITHUB_WORKFLOW}\``
+              ])
+              .addBreak()
+              .addRaw('Keep having fun with GitHub Actions! 🎉')
+              .write()
